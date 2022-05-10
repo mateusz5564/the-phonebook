@@ -24,6 +24,11 @@ const persons = [
   },
 ];
 
+app.get("/info", (req, res) => {
+  const date = new Date(Date.now())
+  res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date.toUTCString()}</p>`)
+})
+
 app.get("/api/persons", (req, res) => {
   res.status(200).json(persons);
 });
