@@ -1,4 +1,5 @@
 const express = require("express");
+const res = require("express/lib/response");
 const app = express();
 
 const persons = [
@@ -25,12 +26,25 @@ const persons = [
 ];
 
 app.get("/info", (req, res) => {
-  const date = new Date(Date.now())
-  res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date.toUTCString()}</p>`)
-})
+  const date = new Date(Date.now());
+  res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date.toUTCString()}</p>`);
+});
 
 app.get("/api/persons", (req, res) => {
-  res.status(200).json(persons);
+  res.json(persons);
+});
+
+app.get("/api/persons/:id", (req, res) => {
+  const id = Number(req.params.id);
+
+  const person = persons.find(person => person.id === id);
+  console.log(person)
+
+  if (person) {
+    res.json(person);
+  } else {
+    res.status(404).json({ error: "person not found" });
+  }
 });
 
 const PORT = 3001;
