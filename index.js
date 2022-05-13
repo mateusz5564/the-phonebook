@@ -1,13 +1,13 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-const Person = require('./models/person');
+const Person = require("./models/person");
 
 const app = express();
 
-app.use(express.static('build'));
-app.use(cors())
+app.use(express.static("build"));
+app.use(cors());
 app.use(express.json());
 
 morgan.token("body", (req, res) => {
@@ -51,18 +51,17 @@ app.get("/info", (req, res) => {
 app.get("/api/persons", (req, res) => {
   Person.find({}).then(result => {
     res.json(result);
-  })
+  });
 });
 
 app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find(person => person.id === id);
-
-  if (person) {
-    res.json(person);
-  } else {
-    res.status(404).json({ error: "person not found" });
-  }
+  Person.findById(req.params.id).then(person => {
+    if (person) {
+      res.json(person);
+    } else {
+      res.status(404).json({ error: "person not found" });
+    }
+  });
 });
 
 const generateId = () => {
@@ -80,15 +79,16 @@ app.post("/api/persons", (req, res) => {
     return res.status(400).json({ error: "number must be unique" });
   }
 
-  const person = {
+  const person = new Person({
     id: generateId(),
     name: body.name,
     number: body.number,
-  };
+  });
 
-  persons = persons.concat(person);
-
-  res.json(person);
+  person.save().then(person => {
+    console.log(`Added ${person.name} number ${person.number} to phonebook`);
+    res.json(person);
+  });
 });
 
 app.delete("/api/persons/:id", (req, res) => {
