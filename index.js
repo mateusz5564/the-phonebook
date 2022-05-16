@@ -20,32 +20,11 @@ morgan.token("body", (req, res) => {
 
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"));
 
-let persons = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
 app.get("/info", (req, res) => {
   const date = new Date(Date.now());
-  res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${date.toUTCString()}</p>`);
+  Person.estimatedDocumentCount((err, count) => {
+    res.send(`<p>Phonebook has info for ${count} people</p><p>${date.toUTCString()}</p>`);
+  });
 });
 
 app.get("/api/persons", (req, res) => {
@@ -91,13 +70,11 @@ app.put("/api/persons/:id", (req, res) => {
   const body = req.body;
   const id = req.params.id;
 
-  Person.findByIdAndUpdate(
-    id,
-    { name: body.name, number: body.number },
-    { new: true }
-  ).then(result => {
-    res.json(result)
-  });
+  Person.findByIdAndUpdate(id, { name: body.name, number: body.number }, { new: true }).then(
+    result => {
+      res.json(result);
+    }
+  );
 });
 
 app.delete("/api/persons/:id", (req, res, next) => {
