@@ -91,17 +91,25 @@ app.post("/api/persons", (req, res) => {
   });
 });
 
-app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const person = persons.find(person => person.id === id);
-
-  if (person) {
-    persons = persons.filter(person => person.id !== id);
-    res.status(204).end();
-  } else {
-    res.status(404).json({ error: "person not found" });
-  }
+app.delete("/api/persons/:id", (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then(result => {
+      res.status(204).end();
+    })
+    .catch(err => next(err));
 });
+
+const errorHandler = (err, req, res, next) => {
+  console.error(err.message);
+
+  if (err.name === "CastError") {
+    res.status(400).json({ error: "malformatted id" });
+  }
+
+  next(error)
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
