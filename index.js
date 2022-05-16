@@ -49,7 +49,7 @@ app.get("/info", (req, res) => {
 });
 
 app.get("/api/persons", (req, res) => {
-  Person.find({}).then(result => {
+  Person.find(req.query).then(result => {
     res.json(result);
   });
 });
@@ -75,10 +75,6 @@ app.post("/api/persons", (req, res) => {
     return res.status(400).json({ error: "missing name or number" });
   }
 
-  if (persons.some(person => person.name === body.name)) {
-    return res.status(400).json({ error: "number must be unique" });
-  }
-
   const person = new Person({
     id: generateId(),
     name: body.name,
@@ -88,6 +84,19 @@ app.post("/api/persons", (req, res) => {
   person.save().then(person => {
     console.log(`Added ${person.name} number ${person.number} to phonebook`);
     res.json(person);
+  });
+});
+
+app.put("/api/persons/:id", (req, res) => {
+  const body = req.body;
+  const id = req.params.id;
+
+  Person.findByIdAndUpdate(
+    id,
+    { name: body.name, number: body.number },
+    { new: true }
+  ).then(result => {
+    res.json(result)
   });
 });
 
@@ -106,7 +115,7 @@ const errorHandler = (err, req, res, next) => {
     res.status(400).json({ error: "malformatted id" });
   }
 
-  next(error)
+  next(error);
 };
 
 app.use(errorHandler);
