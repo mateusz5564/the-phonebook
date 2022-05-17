@@ -54,21 +54,27 @@ app.post("/api/persons", (req, res, next) => {
     return res.status(400).json({ error: "missing name or number" });
   }
 
-  const person = new Person({
-    id: generateId(),
-    name: body.name,
-    number: body.number,
-  });
-
-  person
-    .save()
+  Person.findOne({ name: body.name })
     .then(person => {
-      console.log(`Added ${person.name} number ${person.number} to phonebook`);
-      res.json(person);
+      if (person) {
+        return res.status(400).json({ error: "Person with that name already exists" });
+      } else {
+        const person = new Person({
+          id: generateId(),
+          name: body.name,
+          number: body.number,
+        });
+
+        person
+          .save()
+          .then(person => {
+            console.log(`Added ${person.name} number ${person.number} to phonebook`);
+            return res.json(person);
+          })
+          .catch(err => next(err));
+      }
     })
-    .catch(err => {
-      next(err);
-    });
+    .catch(err => next(err));
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
