@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "lint": "eslint .",
     "build:ui": "rm -rf build && cd ../fullstackOpen/part2/the-phonebook && npm run build && cp -r build ../../../thePhonebook",
     "deploy": "git push heroku master",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
@@ -23,6 +24,7 @@
   },
   "homepage": "https://github.com/mateusz5564/the-phonebook#readme",
   "devDependencies": {
+    "eslint": "^8.15.0",
     "nodemon": "^2.0.16"
   },
   "dependencies": {

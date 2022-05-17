@@ -1,43 +1,44 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose')
 
-const url = process.env.MONGODB_URI;
+// eslint-disable-next-line no-undef
+const url = process.env.MONGODB_URI
 
 mongoose
   .connect(url)
-  .then(res => {
-    console.log("connected to MongoDB");
+  .then(() => {
+    console.log('connected to MongoDB')
   })
   .catch(err => {
-    console.log("error connecting to MongoDB: ", err.message);
-  });
+    console.log('error connecting to MongoDB: ', err.message)
+  })
 
 const personSchema = new mongoose.Schema({
   name: {
     type: String,
-    minlength: [3, "Name is too short (min 3 characters)"],
-    required: [true, "Name is required"],
+    minlength: [3, 'Name is too short (min 3 characters)'],
+    required: [true, 'Name is required'],
   },
   number: {
     type: String,
     minlength: [8, 'Nubmer is too short'],
     validate: {
       validator: v => {
-        return /^[0-9]{2,3}-[0-9]*$/.test(v);
+        return /^[0-9]{2,3}-[0-9]*$/.test(v)
       },
       message: props => `${props.value} is not a valid phone number!`,
     },
-    required: [true, "Number is required"],
+    required: [true, 'Number is required'],
   },
-});
+})
 
-personSchema.set("toJSON", {
+personSchema.set('toJSON', {
   transform: (document, returnedObj) => {
-    returnedObj.id = returnedObj._id.toString();
-    delete returnedObj._id;
-    delete returnedObj.__v;
+    returnedObj.id = returnedObj._id.toString()
+    delete returnedObj._id
+    delete returnedObj.__v
   },
-});
+})
 
-const Person = mongoose.model("Person", personSchema);
+const Person = mongoose.model('Person', personSchema)
 
-module.exports = Person;
+module.exports = Person
