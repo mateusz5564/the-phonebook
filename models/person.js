@@ -12,9 +12,17 @@ mongoose
   });
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minlength: [3, 'Name is too short (min 3 characters)'],
+    required: [true, 'Name is required'],
+  },
+  number: {
+    type: Number,
+    required: [true, 'Number is required'],
+  },
 });
+
 personSchema.set("toJSON", {
   transform: (document, returnedObj) => {
     returnedObj.id = returnedObj._id.toString();

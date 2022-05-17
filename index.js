@@ -47,7 +47,7 @@ const generateId = () => {
   return Math.floor(Math.random() * 1000000);
 };
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   const body = req.body;
 
   if (!body.name || !body.number) {
@@ -60,21 +60,30 @@ app.post("/api/persons", (req, res) => {
     number: body.number,
   });
 
-  person.save().then(person => {
-    console.log(`Added ${person.name} number ${person.number} to phonebook`);
-    res.json(person);
-  });
+  person
+    .save()
+    .then(person => {
+      console.log(`Added ${person.name} number ${person.number} to phonebook`);
+      res.json(person);
+    })
+    .catch(err => {
+      next(err);
+    });
 });
 
-app.put("/api/persons/:id", (req, res) => {
+app.put("/api/persons/:id", (req, res, next) => {
   const body = req.body;
   const id = req.params.id;
 
-  Person.findByIdAndUpdate(id, { name: body.name, number: body.number }, { new: true }).then(
-    result => {
+  Person.findByIdAndUpdate(
+    id,
+    { name: body.name, number: body.number },
+    { new: true, runValidators: true }
+  )
+    .then(result => {
       res.json(result);
-    }
-  );
+    })
+    .catch(err => next(err));
 });
 
 app.delete("/api/persons/:id", (req, res, next) => {
@@ -89,7 +98,9 @@ const errorHandler = (err, req, res, next) => {
   console.error(err.message);
 
   if (err.name === "CastError") {
-    res.status(400).json({ error: "malformatted id" });
+    return res.status(400).json({ error: "malformatted id" });
+  } else if (err.name === "ValidationError") {
+    return res.status(400).json({ error: err.message });
   }
 
   next(error);
